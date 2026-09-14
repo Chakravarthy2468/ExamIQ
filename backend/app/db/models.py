@@ -229,6 +229,9 @@ class AnswerEvaluation(Base):
     completeness = Column(Float)
     missing_concepts = Column(Text)
     feedback = Column(Text)
+    model_metadata = Column(Text, nullable=True) # Stored JSON (model, prompt version)
+    confidence_score = Column(Float, nullable=True)
+    requires_human_review = Column(Boolean, default=True)
     
     submission = relationship("AnswerSubmission", back_populates="evaluation")
 

@@ -23,6 +23,14 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
+@pytest.fixture(scope="function")
+def db_session():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
 @pytest.fixture(scope="module")
 def client():
     with TestClient(app) as c:

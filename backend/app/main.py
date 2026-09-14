@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1 import auth, documents, mappings, analytics, study_plans, mock_papers
+from app.api.v1 import auth, documents, mappings, analytics, study_plans, mock_papers, evaluations, ai_tutor
 from app.db.database import engine, Base
 
 # Create tables for SQLite if not using alembic yet
@@ -25,6 +25,8 @@ app.include_router(mappings.router, prefix=f"{settings.API_V1_STR}/mappings", ta
 app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["analytics"])
 app.include_router(study_plans.router, prefix=f"{settings.API_V1_STR}/study_plans", tags=["study_plans"])
 app.include_router(mock_papers.router, prefix=f"{settings.API_V1_STR}/mock_papers", tags=["mock_papers"])
+app.include_router(evaluations.router, prefix=f"{settings.API_V1_STR}/evaluations", tags=["evaluations"])
+app.include_router(ai_tutor.router, prefix=f"{settings.API_V1_STR}/ai_tutor", tags=["ai_tutor"])
 
 @app.get("/")
 def read_root():
