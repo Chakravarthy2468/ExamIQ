@@ -160,6 +160,8 @@ class StudyPlan(Base):
     exam_date = Column(DateTime)
     study_hours_per_day = Column(Float)
     readiness_score = Column(Float)
+    generated_at = Column(DateTime, default=datetime.utcnow)
+    schedule_data = Column(Text) # Stored as JSON
     
     user = relationship("User", back_populates="study_plans")
     course = relationship("Course")
@@ -195,6 +197,7 @@ class MockPaperQuestion(Base):
     id = Column(Integer, primary_key=True, index=True)
     mock_paper_id = Column(Integer, ForeignKey("mock_papers.id"), nullable=False)
     topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
+    historical_question_id = Column(Integer, ForeignKey("questions.id"), nullable=True)
     question_number = Column(String)
     question_type = Column(String)
     question_text = Column(Text, nullable=False)
