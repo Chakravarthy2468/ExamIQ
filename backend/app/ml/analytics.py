@@ -1,6 +1,6 @@
 import pandas as pd
 from sqlalchemy.orm import Session
-from app.db.models import TopicAnalytics, QuestionTopicMap, Question, Topic, QuestionPaper
+from app.db.models import TopicAnalytics, QuestionTopicMap, Question, Topic, QuestionPaper, Document
 from sqlalchemy import func
 
 def compute_topic_analytics(db: Session, course_id: int):

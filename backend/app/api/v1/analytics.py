@@ -2,7 +2,7 @@ from typing import Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.db.models import TopicAnalytics, User
+from app.db.models import TopicAnalytics, User, Topic
 from app.api.dependencies import get_current_user
 from app.ml.analytics import compute_topic_analytics, calculate_syllabus_coverage
 
