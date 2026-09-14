@@ -59,6 +59,17 @@ function FacultyDashboard({ token }: { token: string }) {
   )
 }
 
+function StudentDashboard({ token }: { token: string }) {
+  return (
+    <div>
+      <h2>Student Dashboard</h2>
+      <p>Welcome, Student! Here you can view your study plans, upload answers to mock exams, and see AI evaluations.</p>
+      <p><em>(Student features are powered by the backend API and AI Tutor endpoints.)</em></p>
+      <ResponsibleAIDisclaimer />
+    </div>
+  )
+}
+
 function AdminDashboard({ token }: { token: string }) {
   const [health, setHealth] = useState<any>({})
   const [users, setUsers] = useState<any[]>([])
@@ -115,6 +126,7 @@ function App() {
             <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
             <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
             <select value={role} onChange={e => setRole(e.target.value)}>
+              <option value="STUDENT">Student</option>
               <option value="FACULTY">Faculty</option>
               <option value="ADMIN">Admin</option>
             </select>
@@ -123,7 +135,9 @@ function App() {
         ) : (
           <div>
             <button onClick={() => setToken('')}>Logout</button>
-            {role === 'FACULTY' ? <FacultyDashboard token={token} /> : <AdminDashboard token={token} />}
+            {role === 'FACULTY' && <FacultyDashboard token={token} />}
+            {role === 'ADMIN' && <AdminDashboard token={token} />}
+            {role === 'STUDENT' && <StudentDashboard token={token} />}
           </div>
         )}
       </div>
