@@ -23,7 +23,9 @@ export const Login: React.FC = () => {
       data.append('username', email);
       data.append('password', password);
       
-      const res = await apiClient.post('/auth/login', data);
+      const res = await apiClient.post('/auth/login', data, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
       // Decode JWT to get role (simple base64 decode for payload)
       const token = res.data.access_token;
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -36,7 +38,8 @@ export const Login: React.FC = () => {
       else navigate('/student');
       
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+      const detail = err.response?.data?.detail;
+      setError(typeof detail === 'string' ? detail : 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
