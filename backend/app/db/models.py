@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Enum, Text
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Enum, Text, JSON
 from sqlalchemy.orm import relationship
 from app.db.database import Base
 
@@ -229,9 +229,15 @@ class AnswerEvaluation(Base):
     completeness = Column(Float)
     missing_concepts = Column(Text)
     feedback = Column(Text)
-    model_metadata = Column(Text, nullable=True) # Stored JSON (model, prompt version)
+    model_metadata = Column(JSON, nullable=True) # E.g., {"model": "qwen3:8b", "prompt_version": 1}
     confidence_score = Column(Float, nullable=True)
-    requires_human_review = Column(Boolean, default=True)
+    requires_human_review = Column(Boolean, default=False)
+    
+    # Overrides
+    original_obtained_marks = Column(Float, nullable=True)
+    overridden_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    overridden_at = Column(DateTime, nullable=True)
+    override_reason = Column(Text, nullable=True)
     
     submission = relationship("AnswerSubmission", back_populates="evaluation")
 
@@ -266,3 +272,16 @@ class AuditLog(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     
     user = relationship("User")
+
+class CourseFacultyMap(Base):
+    __tablename__ = "course_faculty_map"
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
+    faculty_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+class CourseEnrollment(Base):
+    __tablename__ = "course_enrollments"
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+

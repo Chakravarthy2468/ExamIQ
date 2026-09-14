@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1 import auth, documents, mappings, analytics, study_plans, mock_papers, evaluations, ai_tutor, progress, reports
+from app.api.v1 import auth, documents, mappings, analytics, study_plans, mock_papers, evaluations, ai_tutor, progress, reports, admin, faculty
 from app.db.database import engine, Base
 
 # Create tables for SQLite if not using alembic yet
@@ -29,6 +30,16 @@ app.include_router(evaluations.router, prefix=f"{settings.API_V1_STR}/evaluation
 app.include_router(ai_tutor.router, prefix=f"{settings.API_V1_STR}/ai_tutor", tags=["ai_tutor"])
 app.include_router(progress.router, prefix=f"{settings.API_V1_STR}/progress", tags=["progress"])
 app.include_router(reports.router, prefix=f"{settings.API_V1_STR}/reports", tags=["reports"])
+app.include_router(admin.router, prefix=f"{settings.API_V1_STR}/admin", tags=["admin"])
+app.include_router(faculty.router, prefix=f"{settings.API_V1_STR}/faculty", tags=["faculty"])
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    # Safe error message fallback
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An unexpected error occurred. Please try again later."},
+    )
 
 @app.get("/")
 def read_root():

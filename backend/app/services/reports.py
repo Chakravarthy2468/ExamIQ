@@ -25,6 +25,10 @@ def generate_pdf_report(db: Session, user_id: int, course_id: int) -> Report:
     readiness = plan.readiness_score if plan else 0.0
     pdf.cell(200, 10, txt=f"Overall Readiness Score: {readiness}%", ln=True)
     
+    pdf.ln(10)
+    pdf.set_font("Arial", 'I', size=10)
+    pdf.multi_cell(0, 10, txt="Responsible AI Disclosure: AI answer evaluation is advisory and not equivalent to official faculty grading. AI-generated tutoring content and topic importance estimates may contain errors and do not guarantee future examination contents. Low-confidence evaluations may require human review.")
+    
     filename = f"report_{user_id}_{course_id}_{int(datetime.now().timestamp())}.pdf"
     filepath = os.path.join(REPORTS_DIR, filename)
     pdf.output(filepath)
