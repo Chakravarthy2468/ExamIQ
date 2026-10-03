@@ -7,8 +7,8 @@ import { Layout } from './components/ui/Layout';
 // Pages
 import { Login } from './pages/Auth/Login';
 import { StudentDashboard } from './pages/Student/StudentDashboard';
-import { FacultyDashboard } from './pages/Faculty/FacultyDashboard';
-import { AdminDashboard } from './pages/Admin/AdminDashboard';
+import { StudentDocuments } from './pages/Student/StudentDocuments';
+import { MockExams } from './pages/Student/MockExams';
 
 // Dummy pages for routes we haven't built out fully yet
 const ComingSoon = ({ title }: { title: string }) => (
@@ -30,22 +30,11 @@ const App: React.FC = () => {
             <Route path="/" element={<Navigate to="/student" replace />} />
 
             {/* Student Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['STUDENT']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'FACULTY']} />}>
               <Route path="/student" element={<StudentDashboard />} />
-              <Route path="/student/exams" element={<ComingSoon title="Mock Exams" />} />
+              <Route path="/student/documents" element={<StudentDocuments />} />
+              <Route path="/student/exams" element={<MockExams />} />
               <Route path="/student/reports" element={<ComingSoon title="Readiness Reports" />} />
-            </Route>
-
-            {/* Faculty Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['FACULTY']} />}>
-              <Route path="/faculty" element={<FacultyDashboard />} />
-              <Route path="/faculty/review" element={<ComingSoon title="Review Queue" />} />
-            </Route>
-
-            {/* Admin Routes */}
-            <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<ComingSoon title="User Management" />} />
             </Route>
           </Route>
           

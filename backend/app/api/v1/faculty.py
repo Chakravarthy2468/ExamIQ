@@ -13,6 +13,16 @@ class OverrideRequest(BaseModel):
     final_marks: float
     override_reason: str
 
+@router.get("/courses")
+def get_faculty_courses(db: Session = Depends(get_db), current_user: User = Depends(get_current_faculty)):
+    faculty_courses = db.query(CourseFacultyMap.course_id).filter(CourseFacultyMap.faculty_id == current_user.id).all()
+    course_ids = [c[0] for c in faculty_courses]
+    if not course_ids:
+        return []
+    from app.db.models import Course
+    courses = db.query(Course).filter(Course.id.in_(course_ids)).all()
+    return [{"id": c.id, "name": c.name, "code": c.code} for c in courses]
+
 @router.get("/students")
 def get_enrolled_students(db: Session = Depends(get_db), current_user: User = Depends(get_current_faculty)):
     # Get courses assigned to this faculty

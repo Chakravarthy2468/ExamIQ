@@ -91,8 +91,6 @@ export const Login: React.FC = () => {
           <p>Demo Accounts:</p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '0.5rem' }}>
             <span onClick={() => {setEmail('student@examiq.com'); setPassword('student123')}} style={{cursor:'pointer', color:'var(--primary-color)'}}>Student</span>
-            <span onClick={() => {setEmail('faculty@examiq.com'); setPassword('faculty123')}} style={{cursor:'pointer', color:'var(--primary-color)'}}>Faculty</span>
-            <span onClick={() => {setEmail('admin@examiq.com'); setPassword('admin123')}} style={{cursor:'pointer', color:'var(--primary-color)'}}>Admin</span>
           </div>
         </div>
       </Card>

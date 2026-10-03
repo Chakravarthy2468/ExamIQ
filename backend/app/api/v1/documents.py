@@ -16,10 +16,33 @@ async def upload_document(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     doc_type: DocumentTypeEnum = Form(...),
-    course_id: int = Form(...),
+    course_name: str = Form(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
+    from app.db.models import Course, University
+    
+    # Resolve or create course
+    course = db.query(Course).filter(Course.name.ilike(course_name)).first()
+    if not course:
+        # Default university for newly created free-text courses
+        uni = db.query(University).first()
+        if not uni:
+            uni = University(name="Default University")
+            db.add(uni)
+            db.commit()
+            db.refresh(uni)
+            
+        course = Course(
+            name=course_name,
+            code=course_name[:4].upper(), # Dummy code
+            university_id=uni.id
+        )
+        db.add(course)
+        db.commit()
+        db.refresh(course)
+        
+    course_id = course.id
     DocumentProcessor.validate_file(file)
     
     file_ext = os.path.splitext(file.filename)[1]

@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1 import auth, documents, mappings, analytics, study_plans, mock_papers, evaluations, ai_tutor, progress, reports, admin, faculty
+from app.api.v1 import auth, documents, mappings, analytics, study_plans, mock_papers, evaluations, ai_tutor, progress, reports, admin, faculty, courses
 from app.db.database import engine, Base
 
 # Create tables for SQLite if not using alembic yet
@@ -21,6 +21,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+app.include_router(courses.router, prefix=f"{settings.API_V1_STR}/courses", tags=["courses"])
 app.include_router(documents.router, prefix=f"{settings.API_V1_STR}/documents", tags=["documents"])
 app.include_router(mappings.router, prefix=f"{settings.API_V1_STR}/mappings", tags=["mappings"])
 app.include_router(analytics.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["analytics"])

@@ -31,26 +31,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   };
 
   const getLinks = () => {
-    switch (role) {
-      case 'STUDENT':
-        return [
-          { name: 'Dashboard', path: '/student', icon: <User size={18} /> },
-          { name: 'Mock Exams', path: '/student/exams', icon: <BookOpen size={18} /> },
-          { name: 'Reports', path: '/student/reports', icon: <FileText size={18} /> },
-        ];
-      case 'FACULTY':
-        return [
-          { name: 'Dashboard', path: '/faculty', icon: <Users size={18} /> },
-          { name: 'Review Queue', path: '/faculty/review', icon: <CheckCircle size={18} /> },
-        ];
-      case 'ADMIN':
-        return [
-          { name: 'Dashboard', path: '/admin', icon: <Activity size={18} /> },
-          { name: 'Users', path: '/admin/users', icon: <Users size={18} /> },
-        ];
-      default:
-        return [];
-    }
+    return [
+      { name: 'Dashboard', path: '/student', icon: <User size={18} /> },
+      { name: 'Documents', path: '/student/documents', icon: <FileText size={18} /> },
+      { name: 'Mock Exams', path: '/student/exams', icon: <BookOpen size={18} /> },
+      { name: 'Reports', path: '/student/reports', icon: <Activity size={18} /> },
+    ];
   };
 
   return (
