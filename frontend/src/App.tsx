@@ -9,6 +9,8 @@ import { Login } from './pages/Auth/Login';
 import { StudentDashboard } from './pages/Student/StudentDashboard';
 import { StudentDocuments } from './pages/Student/StudentDocuments';
 import { MockExams } from './pages/Student/MockExams';
+import { StudentPlans } from './pages/Student/StudentPlans';
+import { StudentReports } from './pages/Student/StudentReports';
 
 // Dummy pages for routes we haven't built out fully yet
 const ComingSoon = ({ title }: { title: string }) => (
@@ -33,8 +35,9 @@ const App: React.FC = () => {
             <Route element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'FACULTY']} />}>
               <Route path="/student" element={<StudentDashboard />} />
               <Route path="/student/documents" element={<StudentDocuments />} />
+              <Route path="/student/plans" element={<StudentPlans />} />
               <Route path="/student/exams" element={<MockExams />} />
-              <Route path="/student/reports" element={<ComingSoon title="Readiness Reports" />} />
+              <Route path="/student/reports" element={<StudentReports />} />
             </Route>
           </Route>
           

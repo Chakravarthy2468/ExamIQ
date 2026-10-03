@@ -34,7 +34,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     return [
       { name: 'Dashboard', path: '/student', icon: <User size={18} /> },
       { name: 'Documents', path: '/student/documents', icon: <FileText size={18} /> },
-      { name: 'Mock Exams', path: '/student/exams', icon: <BookOpen size={18} /> },
+      { name: 'Study Plans', path: '/student/plans', icon: <BookOpen size={18} /> },
+      { name: 'Mock Exams', path: '/student/exams', icon: <CheckCircle size={18} /> },
       { name: 'Reports', path: '/student/reports', icon: <Activity size={18} /> },
     ];
   };

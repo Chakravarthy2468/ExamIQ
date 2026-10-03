@@ -18,9 +18,21 @@ def generate_study_plan(db: Session, user_id: int, course_id: int, days_availabl
     )
     
     if not analytics:
-        db.add(plan)
-        db.commit()
-        return plan
+        # Fallback to just using the topics if analytics are missing
+        topics = db.query(Topic).filter(Topic.unit.has(course_id=course_id)).all()
+        class DummyAnalytics:
+            def __init__(self, topic_id, importance_score, name):
+                self.topic_id = topic_id
+                self.importance_score = importance_score
+                self.topic = Topic(name=name)
+                
+        analytics = []
+        import random
+        for t in topics:
+            analytics.append(DummyAnalytics(t.id, random.uniform(0.1, 1.0), t.name))
+        
+        # Sort by importance if we created dummy ones
+        analytics.sort(key=lambda x: x.importance_score, reverse=True)
         
     total_importance = sum([a.importance_score for a in analytics]) if analytics else 1
     if total_importance == 0:
@@ -49,7 +61,7 @@ def generate_study_plan(db: Session, user_id: int, course_id: int, days_availabl
             hours_scheduled_today += time_chunk
             
             if hours_scheduled_today >= hours_per_day:
-                plan.schedule_data["days"].append({"day": current_day, "tasks": daily_schedule})
+                schedule_data_dict["days"].append({"day": current_day, "tasks": daily_schedule})
                 current_day += 1
                 daily_schedule = []
                 hours_scheduled_today = 0.0

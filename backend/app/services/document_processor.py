@@ -51,13 +51,17 @@ class DocumentProcessor:
             if doc.type == DocumentTypeEnum.QUESTION_PAPER:
                 extract_questions_from_text(db, doc, extracted_text)
             elif doc.type == DocumentTypeEnum.SYLLABUS:
-                # Syllabus extraction logic
-                pass
+                from app.services.syllabus_extractor import extract_syllabus_from_text
+                extract_syllabus_from_text(db, doc, extracted_text)
                 
             job.status = JobStatusEnum.COMPLETED
             job.progress_percent = 100.0
             doc.status = "COMPLETED"
             db.commit()
+            
+            # Post-processing: recalculate topic mappings and analytics
+            from app.services.analytics_builder import map_and_calculate_analytics
+            map_and_calculate_analytics(db, doc.course_id)
             
         except Exception as e:
             job.status = JobStatusEnum.FAILED
