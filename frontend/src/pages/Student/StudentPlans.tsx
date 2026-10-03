@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 import apiClient from '../../api/client';
-import { Calendar, Clock, BookOpen, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, BookOpen, CheckCircle, Sparkles } from 'lucide-react';
 
 export const StudentPlans: React.FC = () => {
   const [courses, setCourses] = useState<any[]>([]);
@@ -36,93 +39,107 @@ export const StudentPlans: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <h1 className="text-gradient" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <Calendar /> Smart Study Planner
-      </h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-        Generate an AI-optimized study schedule based on syllabus importance.
-      </p>
+    <div className="animate-fade-in" style={{ maxWidth: '900px' }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ marginBottom: '0.25rem' }}>Study Plans</h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Generate AI-optimized schedules based on syllabus and PYQ analysis.</p>
+      </div>
 
       {error && (
-        <div style={{ background: 'var(--danger-color)', color: '#fff', padding: '1rem', borderRadius: 'var(--radius)', marginBottom: '2rem' }}>
+        <div style={{ padding: '0.875rem 1rem', background: 'var(--danger-subtle)', border: '1px solid rgba(248, 113, 113, 0.2)', color: 'var(--danger-color)', borderRadius: 'var(--radius)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
           {error}
         </div>
       )}
 
-      <div style={{ background: 'var(--surface-color)', padding: '2rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', marginBottom: '2rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', alignItems: 'end' }}>
+      <Card style={{ marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          <div style={{ background: 'var(--accent-subtle)', padding: '0.5rem', borderRadius: 'var(--radius)', color: 'var(--accent-color)' }}>
+            <Calendar size={20} />
+          </div>
+          <h2 style={{ fontSize: '1.125rem' }}>Plan Parameters</h2>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', alignItems: 'flex-start' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Course</label>
+            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Select Course</label>
             <select 
               value={selectedCourse} 
               onChange={e => setSelectedCourse(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--background-color)', color: 'var(--text-primary)' }}
+              style={{ width: '100%', padding: '0.625rem 0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--bg-elevated)', color: 'var(--text-primary)', fontSize: '0.875rem', outline: 'none' }}
             >
               {courses.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
+              {courses.length === 0 && <option value="" disabled>No courses available</option>}
             </select>
           </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Days Available</label>
-            <input 
-              type="number"
-              value={days}
-              onChange={e => setDays(Number(e.target.value))}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--background-color)', color: 'var(--text-primary)' }}
-            />
-          </div>
-          <div>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Hours per Day</label>
-            <input 
-              type="number"
-              step="0.5"
-              value={hoursPerDay}
-              onChange={e => setHoursPerDay(Number(e.target.value))}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--background-color)', color: 'var(--text-primary)' }}
-            />
-          </div>
+          <Input 
+            label="Days Available"
+            type="number"
+            value={days}
+            onChange={e => setDays(Number(e.target.value))}
+            min={1}
+            max={180}
+          />
+          <Input 
+            label="Hours per Day"
+            type="number"
+            step="0.5"
+            value={hoursPerDay}
+            onChange={e => setHoursPerDay(Number(e.target.value))}
+            min={0.5}
+            max={16}
+          />
         </div>
         
-        <button 
-          onClick={handleGenerate}
-          disabled={loading || !selectedCourse}
-          style={{ width: '100%', padding: '1rem', marginTop: '1.5rem' }}
-          className="btn btn-primary"
-        >
-          {loading ? 'Generating Plan...' : 'Generate Optimized Plan'}
-        </button>
-      </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <Button 
+            onClick={handleGenerate}
+            disabled={loading || !selectedCourse}
+            icon={<Sparkles size={16} />}
+          >
+            Generate Optimized Plan
+          </Button>
+        </div>
+      </Card>
 
       {plan && plan.schedule && (
-        <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><CheckCircle className="text-primary" /> Your Generated Schedule</h2>
+        <div className="animate-fade-in-up">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <CheckCircle size={20} className="text-primary" /> 
+            <h2 style={{ fontSize: '1.125rem', margin: 0 }}>Your Generated Schedule</h2>
+          </div>
+          
           {JSON.parse(plan.schedule).days.length === 0 ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--surface-color)', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
-              <p>No topics found for this course.</p>
-              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Please make sure a Syllabus document is uploaded and processed first.</p>
-            </div>
+            <Card style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+              <p style={{ color: 'var(--text-primary)', fontWeight: 500 }}>No topics found for this course.</p>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Please make sure a Syllabus document is uploaded and processed first.</p>
+            </Card>
           ) : (
-            JSON.parse(plan.schedule).days.map((day: any) => (
-              <div key={day.day} style={{ background: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
-                <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>Day {day.day}</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {day.tasks.map((task: any, idx: number) => (
-                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--background-color)', padding: '1rem', borderRadius: 'var(--radius)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <BookOpen size={16} className="text-secondary" />
-                      <span>{task.topic_name}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                      <Clock size={16} />
-                      <span>{task.hours} hrs</span>
-                    </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {JSON.parse(plan.schedule).days.map((day: any) => (
+                <Card key={day.day} hover style={{ padding: '0', overflow: 'hidden' }}>
+                  <div style={{ background: 'var(--bg-elevated)', padding: '0.75rem 1.25rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ fontSize: '0.9375rem', color: 'var(--primary-color)', margin: 0 }}>Day {day.day}</h3>
                   </div>
-                ))}
-              </div>
+                  <div style={{ padding: '0.5rem' }}>
+                    {day.tasks.map((task: any, idx: number) => (
+                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', borderRadius: 'var(--radius-sm)', transition: 'background var(--transition-fast)' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <BookOpen size={16} color="var(--text-muted)" />
+                          <span style={{ fontSize: '0.875rem', color: 'var(--text-primary)' }}>{task.topic_name}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.8125rem', background: 'var(--bg-elevated)', padding: '0.25rem 0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)' }}>
+                          <Clock size={14} />
+                          <span>{task.hours} hrs</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>

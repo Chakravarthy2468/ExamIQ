@@ -1,9 +1,26 @@
 import React from 'react';
 
-export const Card: React.FC<{ children: React.ReactNode; title?: string; className?: string }> = ({ children, title, className = '' }) => {
+interface CardProps {
+  children: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  hover?: boolean;
+}
+
+export const Card: React.FC<CardProps> = ({ children, title, subtitle, className = '', style = {}, hover = false }) => {
   return (
-    <div className={`glass ${className}`} style={{ padding: '1.5rem', marginBottom: '1rem' }}>
-      {title && <h3 style={{ marginTop: 0, marginBottom: '1rem' }}>{title}</h3>}
+    <div
+      className={`glass ${hover ? 'hover-lift' : ''} ${className}`}
+      style={{ padding: '1.25rem', ...style }}
+    >
+      {title && (
+        <div style={{ marginBottom: subtitle ? '0.25rem' : '1rem' }}>
+          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600 }}>{title}</h3>
+          {subtitle && <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '0.25rem 0 0.75rem' }}>{subtitle}</p>}
+        </div>
+      )}
       {children}
     </div>
   );

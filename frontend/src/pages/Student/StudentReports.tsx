@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
 import apiClient from '../../api/client';
-import { Activity, Download, FileText, CheckCircle } from 'lucide-react';
+import { Download, FileText, CheckCircle, BarChart3 } from 'lucide-react';
 
 export const StudentReports: React.FC = () => {
   const [courses, setCourses] = useState<any[]>([]);
@@ -25,8 +27,6 @@ export const StudentReports: React.FC = () => {
     setReportUrl(null);
     try {
       const res = await apiClient.post(`/reports/generate/${selectedCourse}/pdf`);
-      // Create a URL pointing to the download endpoint
-      // Ensure backend knows how to serve this, or we just open the API endpoint
       const downloadUrl = `http://localhost:8000/api/v1/reports/download/${res.data.report_id}`;
       setReportUrl(downloadUrl);
     } catch (err: any) {
@@ -37,61 +37,74 @@ export const StudentReports: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <h1 className="text-gradient" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <Activity /> Readiness Reports
-      </h1>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-        Generate detailed analytics on your preparedness for the final exam.
-      </p>
+    <div className="animate-fade-in" style={{ maxWidth: '800px' }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ marginBottom: '0.25rem' }}>Readiness Reports</h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Generate detailed PDF analytics on your preparedness for the final exam.</p>
+      </div>
 
       {error && (
-        <div style={{ background: 'var(--danger-color)', color: '#fff', padding: '1rem', borderRadius: 'var(--radius)', marginBottom: '2rem' }}>
+        <div style={{ padding: '0.875rem 1rem', background: 'var(--danger-subtle)', border: '1px solid rgba(248, 113, 113, 0.2)', color: 'var(--danger-color)', borderRadius: 'var(--radius)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
           {error}
         </div>
       )}
 
-      <div style={{ background: 'var(--surface-color)', padding: '2rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', marginBottom: '2rem' }}>
+      <Card style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          <div style={{ background: 'var(--warning-subtle)', padding: '0.5rem', borderRadius: 'var(--radius)', color: 'var(--warning-color)' }}>
+            <BarChart3 size={20} />
+          </div>
+          <h2 style={{ fontSize: '1.125rem', margin: 0 }}>Analytics Generation</h2>
+        </div>
+        
         <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Select Course</label>
+          <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '0.375rem' }}>Select Course</label>
           <select 
             value={selectedCourse} 
             onChange={e => setSelectedCourse(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--background-color)', color: 'var(--text-primary)' }}
+            style={{ width: '100%', padding: '0.625rem 0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--bg-elevated)', color: 'var(--text-primary)', fontSize: '0.875rem', outline: 'none' }}
           >
             {courses.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
+            {courses.length === 0 && <option value="" disabled>No courses available</option>}
           </select>
         </div>
         
-        <button 
+        <Button 
           onClick={handleGeneratePdf}
           disabled={loading || !selectedCourse}
-          style={{ width: '100%', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-          className="btn btn-primary"
+          style={{ width: '100%' }}
+          icon={<FileText size={16} />}
         >
-          <FileText size={20} />
-          {loading ? 'Generating PDF...' : 'Generate PDF Report'}
-        </button>
-      </div>
+          {loading ? 'Compiling Analysis...' : 'Generate PDF Report'}
+        </Button>
+      </Card>
 
       {reportUrl && (
-        <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '3rem', background: 'var(--surface-color)', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
-          <CheckCircle size={48} className="text-primary" />
-          <h2 style={{ color: 'var(--text-primary)' }}>Report Ready!</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Your personalized exam readiness report has been generated.</p>
+        <Card className="animate-fade-in-up" style={{ textAlign: 'center', padding: '3rem 2rem', background: 'var(--success-subtle)', border: '1px solid rgba(52, 211, 153, 0.2)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, background: 'var(--success-color)', borderRadius: '50%', marginBottom: '1.5rem', boxShadow: '0 0 20px rgba(52, 211, 153, 0.3)' }}>
+            <CheckCircle size={32} color="#fff" />
+          </div>
+          <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', fontSize: '1.25rem' }}>Report Ready!</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '2rem' }}>Your personalized exam readiness analytics report has been generated successfully.</p>
           <a 
             href={reportUrl} 
             target="_blank" 
             rel="noreferrer"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 2rem', textDecoration: 'none', borderRadius: 'var(--radius)', background: 'var(--primary-color)', color: '#fff', fontWeight: 600 }}
-            className="hover-scale"
+            style={{ 
+              display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
+              padding: '0.75rem 1.5rem', textDecoration: 'none', 
+              borderRadius: 'var(--radius)', background: 'var(--success-color)', 
+              color: '#fff', fontWeight: 600, fontSize: '0.9375rem',
+              transition: 'transform var(--transition-fast), box-shadow var(--transition-fast)' 
+            }}
+            className="hover-lift"
           >
-            <Download size={20} />
+            <Download size={18} />
             Download PDF
           </a>
-        </div>
+        </Card>
       )}
     </div>
   );

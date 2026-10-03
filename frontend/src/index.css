@@ -1,13 +1,2 @@
 @import './styles/design-system.css';
 @import './styles/animations.css';
-
-/* Remove default Vite CSS */
-* {
-  box-sizing: border-box;
-}
-
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}

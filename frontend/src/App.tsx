@@ -12,13 +12,7 @@ import { MockExams } from './pages/Student/MockExams';
 import { StudentPlans } from './pages/Student/StudentPlans';
 import { StudentReports } from './pages/Student/StudentReports';
 
-// Dummy pages for routes we haven't built out fully yet
-const ComingSoon = ({ title }: { title: string }) => (
-  <div>
-    <h1>{title}</h1>
-    <p>This module is under construction in Phase 26-30.</p>
-  </div>
-);
+
 
 const App: React.FC = () => {
   return (
