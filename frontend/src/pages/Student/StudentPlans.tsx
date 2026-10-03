@@ -98,10 +98,16 @@ export const StudentPlans: React.FC = () => {
       {plan && plan.schedule && (
         <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><CheckCircle className="text-primary" /> Your Generated Schedule</h2>
-          {JSON.parse(plan.schedule).days.map((day: any) => (
-            <div key={day.day} style={{ background: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
-              <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>Day {day.day}</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {JSON.parse(plan.schedule).days.length === 0 ? (
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--surface-color)', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
+              <p>No topics found for this course.</p>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Please make sure a Syllabus document is uploaded and processed first.</p>
+            </div>
+          ) : (
+            JSON.parse(plan.schedule).days.map((day: any) => (
+              <div key={day.day} style={{ background: 'var(--surface-color)', padding: '1.5rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
+                <h3 style={{ marginBottom: '1rem', color: 'var(--primary-color)' }}>Day {day.day}</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {day.tasks.map((task: any, idx: number) => (
                   <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--background-color)', padding: '1rem', borderRadius: 'var(--radius)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

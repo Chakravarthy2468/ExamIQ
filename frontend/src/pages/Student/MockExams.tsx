@@ -78,9 +78,15 @@ export const MockExams: React.FC = () => {
         <Button onClick={() => setActivePaper(null)} style={{ marginBottom: '1rem', background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}>&larr; Back to Exams</Button>
         <h1 style={{ marginBottom: '1rem' }}>Mock Exam</h1>
         
-        {activePaper.questions.map((q: any, index: number) => (
-          <Card key={q.id} style={{ marginBottom: '1rem' }}>
-            <h3 style={{ marginBottom: '1rem' }}>Q{index + 1}: {q.text} <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>({q.marks} Marks)</span></h3>
+        {activePaper.questions.length === 0 ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', background: 'var(--surface-color)', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)' }}>
+            <p>No questions found for this course's mock exam.</p>
+            <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Please make sure a Question Paper (PYQ) document is uploaded and processed.</p>
+          </div>
+        ) : (
+          activePaper.questions.map((q: any, index: number) => (
+            <Card key={q.id} style={{ marginBottom: '1rem' }}>
+              <h3 style={{ marginBottom: '1rem' }}>Q{index + 1}: {q.text} <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>({q.marks} Marks)</span></h3>
             
             <textarea 
               value={answers[q.id] || ''} 
