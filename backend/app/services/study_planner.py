@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import datetime, timedelta
 from typing import List
 from sqlalchemy.orm import Session
@@ -31,48 +32,74 @@ def generate_study_plan(db: Session, user_id: int, course_id: int, days_availabl
         for t in topics:
             analytics.append(DummyAnalytics(t.id, random.uniform(0.1, 1.0), t.name))
         
-        # Sort by importance if we created dummy ones
+        # Sort by importance
         analytics.sort(key=lambda x: x.importance_score, reverse=True)
         
     total_importance = sum([a.importance_score for a in analytics]) if analytics else 1
     if total_importance == 0:
         total_importance = 1
         
-    total_hours = days_available * hours_per_day
+    # Reserve last 10% of days (at least 1 day) for Revision & Mock Exams
+    revision_days = max(1, int(days_available * 0.1))
+    study_days = max(1, days_available - revision_days)
+    total_study_hours = study_days * hours_per_day
     
     current_day = 1
     hours_scheduled_today = 0.0
     daily_schedule = []
     
-    # Simple proportional allocation
     for a in analytics:
-        # Avoid zero allocation
-        allocated_hours = max(0.5, (a.importance_score / total_importance) * total_hours)
+        # Clean topic name (remove leading numbers like "1.", "1.1", "- ")
+        clean_name = re.sub(r'^[\d\.\-\s]+', '', a.topic.name)
+        if not clean_name:
+            clean_name = a.topic.name
+            
+        allocated_hours = (a.importance_score / total_importance) * total_study_hours
+        # Minimum chunk size is 0.5 hr to avoid micro-tasks, unless the total is very tight
+        allocated_hours = max(0.5, round(allocated_hours * 2) / 2.0)
         
         while allocated_hours > 0:
             time_chunk = min(allocated_hours, hours_per_day - hours_scheduled_today)
             daily_schedule.append({
                 "topic_id": a.topic_id,
-                "topic_name": a.topic.name,
+                "topic_name": clean_name.strip(),
                 "hours": round(time_chunk, 1)
             })
             
             allocated_hours -= time_chunk
             hours_scheduled_today += time_chunk
             
-            if hours_scheduled_today >= hours_per_day:
+            if hours_scheduled_today >= hours_per_day - 0.1: # Account for floating point
                 schedule_data_dict["days"].append({"day": current_day, "tasks": daily_schedule})
                 current_day += 1
                 daily_schedule = []
                 hours_scheduled_today = 0.0
                 
-            if current_day > days_available:
+            if current_day > study_days:
                 break
-        if current_day > days_available:
+        if current_day > study_days:
             break
             
-    if daily_schedule:
+    if daily_schedule and current_day <= study_days:
         schedule_data_dict["days"].append({"day": current_day, "tasks": daily_schedule})
+        current_day += 1
+        
+    # Add reserved Revision Days
+    while current_day <= days_available:
+        if current_day == days_available:
+            task_name = "Full Course Revision & Final Mock Exam"
+        else:
+            task_name = "Targeted Practice on High-Weightage Topics"
+            
+        schedule_data_dict["days"].append({
+            "day": current_day, 
+            "tasks": [{
+                "topic_id": 0,
+                "topic_name": task_name,
+                "hours": hours_per_day
+            }]
+        })
+        current_day += 1
         
     plan.schedule_data = json.dumps(schedule_data_dict)
     db.add(plan)
