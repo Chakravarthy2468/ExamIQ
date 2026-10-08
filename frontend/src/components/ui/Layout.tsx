@@ -15,11 +15,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     { name: 'Documents', path: '/student/documents', icon: <FileText size={18} /> },
     { name: 'Study Plans', path: '/student/plans', icon: <BookOpen size={18} /> },
     { name: 'Mock Exams', path: '/student/exams', icon: <PenTool size={18} /> },
-    { name: 'Reports', path: '/student/reports', icon: <BarChart3 size={18} /> },
   ];
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--bg-color)' }}>
       {/* Sidebar */}
       <aside
         style={{
@@ -29,10 +28,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           left: 0,
           top: 0,
           borderRight: '1px solid var(--border-color)',
-          background: 'var(--bg-elevated)',
-          padding: '1.5rem 0.75rem',
+          background: '#FFFFFF',
+          padding: '24px 12px',
           display: 'flex',
           flexDirection: 'column',
+          zIndex: 10,
         }}
       >
         {/* Brand */}
@@ -40,30 +40,30 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.625rem',
-            padding: '0 0.75rem',
-            marginBottom: '2rem',
+            gap: '10px',
+            padding: '0 12px',
+            marginBottom: '32px',
             cursor: 'pointer',
           }}
           onClick={() => navigate('/student')}
         >
           <div style={{
-            width: 32, height: 32,
-            borderRadius: 'var(--radius)',
-            background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))',
+            width: 28, height: 28,
+            borderRadius: '6px',
+            background: '#111111',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <GraduationCap size={18} color="#fff" />
+            <GraduationCap size={16} color="#fff" />
           </div>
-          <span style={{ fontSize: '1.125rem', fontWeight: 700, letterSpacing: '-0.02em' }} className="text-gradient">
+          <span style={{ fontSize: '18px', fontWeight: 600, letterSpacing: '-0.02em', color: '#111111' }}>
             ExamIQ
           </span>
         </div>
 
         {/* Navigation */}
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
           {links.map((link) => {
-            const isActive = location.pathname === link.path;
+            const isActive = location.pathname === link.path || (link.path !== '/student' && location.pathname.startsWith(link.path));
             return (
               <button
                 key={link.path}
@@ -71,28 +71,27 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.625rem',
-                  padding: '0.5rem 0.75rem',
-                  background: isActive ? 'var(--primary-subtle)' : 'transparent',
-                  color: isActive ? 'var(--primary-color)' : 'var(--text-secondary)',
+                  gap: '12px',
+                  padding: '10px 14px',
+                  background: isActive ? '#E9E9EC' : 'transparent',
+                  color: isActive ? '#111111' : '#555555',
                   border: 'none',
-                  borderRadius: 'var(--radius)',
+                  borderRadius: '8px',
                   cursor: 'pointer',
                   textAlign: 'left',
-                  fontSize: '0.8625rem',
-                  fontWeight: isActive ? 600 : 400,
+                  fontSize: '14px',
+                  fontWeight: isActive ? 600 : 500,
                   fontFamily: 'var(--font-sans)',
-                  transition: 'all var(--transition-fast)',
-                  letterSpacing: '0.01em',
+                  transition: 'background var(--transition-fast), color var(--transition-fast)',
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'var(--surface-hover)';
+                  if (!isActive) { e.currentTarget.style.background = '#EEEEF0'; e.currentTarget.style.color = '#333333'; }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.background = 'transparent';
+                  if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#555555'; }
                 }}
               >
-                {link.icon}
+                {React.cloneElement(link.icon as React.ReactElement, { color: isActive ? '#111111' : '#555555' })}
                 {link.name}
               </button>
             );
@@ -100,27 +99,28 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         </nav>
 
         {/* Footer */}
-        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '0.75rem' }}>
+        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
           <button
             onClick={logout}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.625rem',
-              padding: '0.5rem 0.75rem',
+              gap: '10px',
+              padding: '10px 14px',
               background: 'transparent',
-              color: 'var(--text-muted)',
+              color: '#555555',
               border: 'none',
-              borderRadius: 'var(--radius)',
+              borderRadius: '8px',
               cursor: 'pointer',
               textAlign: 'left',
-              fontSize: '0.8625rem',
+              fontSize: '14px',
+              fontWeight: 500,
               fontFamily: 'var(--font-sans)',
-              transition: 'color var(--transition-fast)',
+              transition: 'background var(--transition-fast), color var(--transition-fast)',
               width: '100%',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--danger-color)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#EEEEF0'; e.currentTarget.style.color = 'var(--danger-color)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#555555'; }}
           >
             <LogOut size={16} />
             Sign Out
@@ -132,9 +132,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       <main
         style={{
           marginLeft: '240px',
-          padding: '2rem 2.5rem',
+          padding: '40px 48px',
           flex: 1,
-          maxWidth: '1100px',
+          maxWidth: '1200px',
         }}
         className="animate-fade-in"
       >

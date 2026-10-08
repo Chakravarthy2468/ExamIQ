@@ -55,28 +55,42 @@ def generate_study_plan(db: Session, user_id: int, course_id: int, days_availabl
             clean_name = a.topic.name
             
         allocated_hours = (a.importance_score / total_importance) * total_study_hours
-        # Minimum chunk size is 0.5 hr to avoid micro-tasks, unless the total is very tight
+        
+        # Cap a single topic to a maximum of 3 hours or the hours_per_day, whichever is smaller, so it doesn't drag on forever
+        allocated_hours = min(allocated_hours, 3.0, hours_per_day)
+        
+        # Minimum chunk size is 0.5 hr to avoid micro-tasks
         allocated_hours = max(0.5, round(allocated_hours * 2) / 2.0)
         
-        while allocated_hours > 0:
-            time_chunk = min(allocated_hours, hours_per_day - hours_scheduled_today)
-            daily_schedule.append({
-                "topic_id": a.topic_id,
-                "topic_name": clean_name.strip(),
-                "hours": round(time_chunk, 1)
-            })
+        # If the topic doesn't fit in the remaining hours of today, move to the next day
+        if allocated_hours > (hours_per_day - hours_scheduled_today) and hours_scheduled_today > 0:
+            schedule_data_dict["days"].append({"day": current_day, "tasks": daily_schedule})
+            current_day += 1
+            daily_schedule = []
+            hours_scheduled_today = 0.0
             
-            allocated_hours -= time_chunk
-            hours_scheduled_today += time_chunk
-            
-            if hours_scheduled_today >= hours_per_day - 0.1: # Account for floating point
-                schedule_data_dict["days"].append({"day": current_day, "tasks": daily_schedule})
-                current_day += 1
-                daily_schedule = []
-                hours_scheduled_today = 0.0
-                
             if current_day > study_days:
                 break
+                
+        # Now it fits in the current day perfectly
+        time_chunk = allocated_hours
+        daily_schedule.append({
+            "topic_id": a.topic_id,
+            "topic_name": clean_name.strip(),
+            "module_name": a.topic.unit.title if a.topic.unit else "General Module",
+            "marks": float(a.total_marks) if hasattr(a, 'total_marks') and a.total_marks else 0.0,
+            "frequency": int(a.frequency) if hasattr(a, 'frequency') and a.frequency else 0,
+            "hours": round(time_chunk, 1)
+        })
+        
+        hours_scheduled_today += time_chunk
+        
+        if hours_scheduled_today >= hours_per_day - 0.1: # Account for floating point
+            schedule_data_dict["days"].append({"day": current_day, "tasks": daily_schedule})
+            current_day += 1
+            daily_schedule = []
+            hours_scheduled_today = 0.0
+            
         if current_day > study_days:
             break
             
@@ -96,6 +110,9 @@ def generate_study_plan(db: Session, user_id: int, course_id: int, days_availabl
             "tasks": [{
                 "topic_id": 0,
                 "topic_name": task_name,
+                "module_name": "Revision & Practice",
+                "marks": 0.0,
+                "frequency": 0,
                 "hours": hours_per_day
             }]
         })

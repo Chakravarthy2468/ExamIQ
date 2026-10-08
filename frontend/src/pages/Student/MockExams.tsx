@@ -59,11 +59,13 @@ export const MockExams: React.FC = () => {
     }
   };
 
+  const [evaluating, setEvaluating] = useState<Record<number, boolean>>({});
+
   const handleSubmitAnswer = async (questionId: number) => {
     const text = answers[questionId];
     if (!text) return;
     
-    // Optimistic UI update or loading state could go here
+    setEvaluating(prev => ({ ...prev, [questionId]: true }));
     try {
       const res = await apiClient.post('/evaluations/submit', {
         mock_question_id: questionId,
@@ -72,41 +74,45 @@ export const MockExams: React.FC = () => {
       setEvaluations(prev => ({ ...prev, [questionId]: res.data.evaluation }));
     } catch (e) {
       console.error(e);
+    } finally {
+      setEvaluating(prev => ({ ...prev, [questionId]: false }));
     }
   };
 
   if (activePaper) {
+    const paperCourse = courses.find(c => c.id === activePaper.course_id);
+    
     return (
       <div className="animate-fade-in-up" style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Button variant="ghost" size="sm" onClick={() => setActivePaper(null)} icon={<ArrowLeft size={16} />}>
+        <div style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Button variant="secondary" onClick={() => setActivePaper(null)} icon={<ArrowLeft size={16} />}>
             Back
           </Button>
           <div>
-            <h1 style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Exam Mode</h1>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Answer questions to receive AI evaluation.</p>
+            <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>{paperCourse ? paperCourse.name : 'Exam Mode'}</h1>
+            <p style={{ color: '#555555', fontSize: '15px', margin: 0 }}>Answer questions and receive detailed evaluations.</p>
           </div>
         </div>
         
         {activePaper.questions.length === 0 ? (
-          <Card style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-            <p style={{ color: 'var(--text-primary)', fontWeight: 500 }}>No questions found for this course's mock exam.</p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Please make sure a Question Paper (PYQ) document is uploaded and processed.</p>
+          <Card style={{ textAlign: 'center', padding: '64px 32px' }}>
+            <p style={{ color: '#111111', fontWeight: 500, fontSize: '16px' }}>No questions found for this course's mock exam.</p>
+            <p style={{ fontSize: '14px', color: '#6B6B6B', marginTop: '8px' }}>Please make sure a Question Paper (PYQ) document is uploaded and processed.</p>
           </Card>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {activePaper.questions.map((q: any, index: number) => (
               <Card key={q.id}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <h3 style={{ fontSize: '1.0625rem', lineHeight: 1.5, margin: 0, flex: 1 }}>
-                    <span style={{ color: 'var(--primary-color)', marginRight: '0.5rem' }}>Q{index + 1}.</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                  <h3 style={{ fontSize: '17px', lineHeight: 1.5, margin: 0, flex: 1, fontWeight: 500, color: '#111111' }}>
+                    <span style={{ color: '#6B6B6B', marginRight: '12px' }}>Q{index + 1}.</span>
                     {q.text}
                   </h3>
                   <span style={{ 
-                    fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)',
-                    background: 'var(--bg-elevated)', padding: '0.25rem 0.5rem', 
-                    borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)',
-                    marginLeft: '1rem', whiteSpace: 'nowrap'
+                    fontSize: '13px', fontWeight: 600, color: '#333333',
+                    background: '#FAFAFB', padding: '6px 12px', 
+                    borderRadius: '8px', border: '1px solid var(--border-color)',
+                    marginLeft: '24px', whiteSpace: 'nowrap'
                   }}>
                     {q.marks} Marks
                   </span>
@@ -117,20 +123,22 @@ export const MockExams: React.FC = () => {
                   onChange={e => setAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
                   placeholder="Type your answer here..."
                   style={{ 
-                    width: '100%', minHeight: '120px', padding: '0.875rem', 
-                    borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', 
-                    marginBottom: '1rem', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
-                    fontFamily: 'var(--font-sans)', fontSize: '0.875rem', resize: 'vertical'
+                    width: '100%', minHeight: '140px', padding: '16px', 
+                    borderRadius: '10px', border: '1px solid #CFCFD4', 
+                    marginBottom: '20px', background: '#FFFFFF', color: '#171717',
+                    fontFamily: 'var(--font-sans)', fontSize: '15px', resize: 'vertical',
+                    outline: 'none', transition: 'border-color 0.2s, box-shadow 0.2s'
                   }}
-                  onFocus={e => e.target.style.borderColor = 'var(--border-focus)'}
-                  onBlur={e => e.target.style.borderColor = 'var(--border-color)'}
+                  onFocus={e => { e.target.style.borderColor = '#111111'; e.target.style.boxShadow = '0 0 0 2px #111111'; }}
+                  onBlur={e => { e.target.style.borderColor = '#CFCFD4'; e.target.style.boxShadow = 'none'; }}
                 />
               
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button 
                     onClick={() => handleSubmitAnswer(q.id)} 
-                    icon={<Send size={14} />} 
+                    icon={<Send size={16} />} 
                     disabled={!answers[q.id]}
+                    isLoading={evaluating[q.id]}
                   >
                     Evaluate Answer
                   </Button>
@@ -138,34 +146,34 @@ export const MockExams: React.FC = () => {
               
                 {evaluations[q.id] && (
                   <div className="animate-fade-in-up" style={{ 
-                    marginTop: '1.5rem', padding: '1.25rem', 
-                    background: 'var(--surface-hover)', borderRadius: 'var(--radius)', 
+                    marginTop: '32px', padding: '24px', 
+                    background: '#FAFAFB', borderRadius: '12px', 
                     border: '1px solid var(--border-color)' 
                   }}>
-                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--success-color)', marginBottom: '1rem', fontSize: '0.9375rem' }}>
-                      <CheckCircle size={18} /> AI Evaluation Results
+                    <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#111111', marginBottom: '20px', fontSize: '16px', fontWeight: 600 }}>
+                      <CheckCircle size={20} color="var(--success-color)" /> Evaluation Results
                     </h4>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                      <div style={{ background: 'var(--bg-elevated)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
-                        <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Marks Awarded</span>
-                        <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>{evaluations[q.id].obtained_marks} <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>/ {q.marks}</span></span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                      <div style={{ border: '1px solid var(--border-color)', background: '#FFFFFF', padding: '16px', borderRadius: '10px' }}>
+                        <span style={{ display: 'block', fontSize: '13px', color: '#6B6B6B', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 500 }}>Marks Awarded</span>
+                        <span style={{ fontSize: '24px', fontWeight: 600, color: '#111111' }}>{evaluations[q.id].obtained_marks} <span style={{ fontSize: '15px', color: '#777777', fontWeight: 500 }}>/ {q.marks}</span></span>
                       </div>
-                      <div style={{ background: 'var(--bg-elevated)', padding: '0.75rem', borderRadius: 'var(--radius-sm)' }}>
-                        <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Completeness</span>
-                        <span style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>{evaluations[q.id].completeness}%</span>
+                      <div style={{ border: '1px solid var(--border-color)', background: '#FFFFFF', padding: '16px', borderRadius: '10px' }}>
+                        <span style={{ display: 'block', fontSize: '13px', color: '#6B6B6B', textTransform: 'uppercase', marginBottom: '8px', fontWeight: 500 }}>Completeness</span>
+                        <span style={{ fontSize: '24px', fontWeight: 600, color: '#111111' }}>{evaluations[q.id].completeness}%</span>
                       </div>
                     </div>
                     
-                    <div style={{ marginBottom: '0.75rem' }}>
-                      <strong style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.25rem' }}>Feedback:</strong>
-                      <p style={{ fontSize: '0.875rem', margin: 0, lineHeight: 1.5 }}>{evaluations[q.id].feedback}</p>
+                    <div style={{ marginBottom: '16px' }}>
+                      <strong style={{ fontSize: '14px', color: '#111111', display: 'block', marginBottom: '6px' }}>Feedback:</strong>
+                      <p style={{ fontSize: '15px', margin: 0, lineHeight: 1.6, color: '#4F4F52' }}>{evaluations[q.id].feedback}</p>
                     </div>
                     
                     {evaluations[q.id].missing_concepts && (
-                      <div>
-                        <strong style={{ fontSize: '0.8125rem', color: 'var(--warning-color)', display: 'block', marginBottom: '0.25rem' }}>Missing Concepts:</strong>
-                        <p style={{ fontSize: '0.875rem', margin: 0, lineHeight: 1.5 }}>{evaluations[q.id].missing_concepts}</p>
+                      <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
+                        <strong style={{ fontSize: '14px', color: '#111111', display: 'block', marginBottom: '6px' }}>Missing Concepts:</strong>
+                        <p style={{ fontSize: '15px', margin: 0, lineHeight: 1.6, color: '#4F4F52' }}>{evaluations[q.id].missing_concepts}</p>
                       </div>
                     )}
                   </div>
@@ -180,86 +188,72 @@ export const MockExams: React.FC = () => {
 
   return (
     <div className="animate-fade-in" style={{ maxWidth: '1000px' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ marginBottom: '0.25rem' }}>Mock Exams</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Generate and take practice exams tailored to your syllabus and PYQs.</p>
+      <div style={{ marginBottom: '40px' }}>
+        <h1 style={{ marginBottom: '8px' }}>Mock Exams</h1>
+        <p style={{ color: '#555555', fontSize: '16px' }}>Generate and take practice exams tailored to your course material.</p>
       </div>
       
-      <Card style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          <div style={{ background: 'var(--success-subtle)', padding: '0.5rem', borderRadius: 'var(--radius)', color: 'var(--success-color)' }}>
+      <Card style={{ marginBottom: '48px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ border: '1px solid var(--border-color)', background: '#FAFAFB', padding: '10px', borderRadius: '10px', color: '#111111' }}>
             <Sparkles size={20} />
           </div>
-          <h2 style={{ fontSize: '1.125rem', margin: 0 }}>Generate New Paper</h2>
+          <h2 style={{ fontSize: '20px', margin: 0, fontWeight: 600, color: '#111111' }}>Generate New Paper</h2>
         </div>
         
         {message && (
-          <div className="animate-fade-in-up" style={{ padding: '0.75rem 1rem', background: 'var(--success-subtle)', border: '1px solid rgba(52, 211, 153, 0.2)', color: 'var(--success-color)', borderRadius: 'var(--radius)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+          <div className="animate-fade-in-up" style={{ padding: '16px', background: 'var(--success-subtle)', border: '1px solid rgba(30, 142, 62, 0.2)', color: 'var(--success-color)', borderRadius: '10px', marginBottom: '24px', fontSize: '15px', fontWeight: 500 }}>
             {message}
           </div>
         )}
         
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
-            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '0.375rem' }}>Select Course</label>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: '#333333', marginBottom: '8px' }}>Select Course</label>
             <select 
               value={selectedCourse} 
               onChange={e => setSelectedCourse(e.target.value)}
-              style={{ width: '100%', padding: '0.625rem 0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-color)', background: 'var(--bg-elevated)', color: 'var(--text-primary)', fontSize: '0.875rem', outline: 'none' }}
+              style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1px solid #CFCFD4', background: '#FFFFFF', color: '#171717', fontSize: '15px', outline: 'none' }}
             >
               {courses.map(c => (
-                <option key={c.id} value={c.id}>{c.code} - {c.name}</option>
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
               {courses.length === 0 && <option value="" disabled>No courses available</option>}
             </select>
           </div>
-          <Button onClick={handleGenerate} isLoading={loading} icon={<PenTool size={16} />}>
+          <Button onClick={handleGenerate} isLoading={loading}>
             Generate Paper
           </Button>
         </div>
       </Card>
 
-      <h2 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Available Papers</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.25rem' }}>
+      <h2 style={{ fontSize: '20px', marginBottom: '20px', fontWeight: 600, color: '#171717' }}>Available Papers</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
         {papers.length === 0 ? (
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', gridColumn: '1 / -1' }}>No mock exams generated yet.</p>
+          <p style={{ color: '#6B6B6B', fontSize: '15px', gridColumn: '1 / -1' }}>No mock exams generated yet.</p>
         ) : (
-          papers.map(p => (
-            <Card key={p.id} hover style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ background: 'var(--primary-subtle)', padding: '0.5rem', borderRadius: 'var(--radius-sm)', color: 'var(--primary-color)' }}>
-                    <BookOpen size={18} />
-                  </div>
-                  <h3 style={{ fontSize: '1rem', margin: 0 }}>Exam #{p.id}</h3>
+          papers.map(p => {
+            const paperCourse = courses.find(c => c.id === p.course_id);
+            return (
+              <Card key={p.id} hover style={{ display: 'flex', flexDirection: 'column', padding: '32px' }}>
+                <div style={{ marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '18px', color: '#111111', fontWeight: 600, marginBottom: '8px', lineHeight: 1.3 }}>
+                    {paperCourse ? paperCourse.name : `Exam #${p.id}`}
+                  </h3>
+                  <p style={{ fontSize: '14px', color: '#6B6B6B', margin: 0, lineHeight: 1.5 }}>
+                    {p.total_marks} questions · {p.total_marks} marks<br/>
+                    {p.difficulty} difficulty
+                  </p>
                 </div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  {new Date(p.generated_at).toLocaleDateString()}
-                </span>
-              </div>
-              
-              <div style={{ background: 'var(--bg-elevated)', padding: '0.75rem', borderRadius: 'var(--radius)', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Course ID</span>
-                  <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{p.course_id}</span>
+                
+                <div style={{ marginTop: 'auto' }}>
+                  <Button onClick={() => handleTakeExam(p.id)} variant="secondary" style={{ width: '100%' }}>
+                    Take Exam
+                  </Button>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Total Marks</span>
-                  <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{p.total_marks}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8125rem' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Difficulty</span>
-                  <span style={{ fontWeight: 500, color: 'var(--warning-color)' }}>{p.difficulty}</span>
-                </div>
-              </div>
-              
-              <div style={{ marginTop: 'auto' }}>
-                <Button onClick={() => handleTakeExam(p.id)} variant="secondary" style={{ width: '100%' }}>
-                  Take Exam
-                </Button>
-              </div>
-            </Card>
-          ))
+              </Card>
+            );
+          })
         )}
       </div>
     </div>

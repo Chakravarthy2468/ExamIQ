@@ -21,8 +21,16 @@ def generate_mock_paper(db: Session, user_id: int, course_id: int, difficulty: s
     # Get high importance topics
     analytics = db.query(TopicAnalytics).join(TopicAnalytics.topic).filter(Topic.unit.has(course_id=course_id)).order_by(TopicAnalytics.importance_score.desc()).all()
     
+    # Fetch already used questions across previous mock tests for this user and course
+    previous_papers = db.query(MockPaper).filter(MockPaper.user_id == user_id, MockPaper.course_id == course_id).all()
+    previous_paper_ids = [p.id for p in previous_papers]
+    
+    used_questions = db.query(MockPaperQuestion.historical_question_id).filter(
+        MockPaperQuestion.mock_paper_id.in_(previous_paper_ids)
+    ).all() if previous_paper_ids else []
+    
+    selected_question_ids = {uq[0] for uq in used_questions if uq[0] is not None}
     current_marks = 0
-    selected_question_ids = set()
     q_num = 1
     
     if analytics:

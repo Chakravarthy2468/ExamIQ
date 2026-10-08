@@ -27,7 +27,7 @@ class OllamaProvider(AIProvider):
             payload["format"] = "json"
             
         try:
-            response = requests.post(url, json=payload, timeout=120)
+            response = requests.post(url, json=payload, timeout=600)
             response.raise_for_status()
             data = response.json()
             return data.get("response", "")

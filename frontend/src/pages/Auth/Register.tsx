@@ -7,7 +7,8 @@ import apiClient from '../../api/client';
 import { useNavigate, Link } from 'react-router-dom';
 import { GraduationCap } from 'lucide-react';
 
-export const Login: React.FC = () => {
+export const Register: React.FC = () => {
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,11 +16,20 @@ export const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
+      // 1. Register User
+      await apiClient.post('/auth/register', {
+        email: email,
+        password: password,
+        full_name: fullName,
+        role: "STUDENT"
+      });
+
+      // 2. Automatically Login
       const data = new URLSearchParams();
       data.append('username', email);
       data.append('password', password);
@@ -35,7 +45,7 @@ export const Login: React.FC = () => {
       navigate('/student');
     } catch (err: any) {
       const detail = err.response?.data?.detail;
-      setError(typeof detail === 'string' ? detail : 'Invalid credentials. Please try again.');
+      setError(typeof detail === 'string' ? detail : 'Failed to register. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -64,8 +74,8 @@ export const Login: React.FC = () => {
             }}>
               <GraduationCap size={24} color="#fff" />
             </div>
-            <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '8px', color: '#111111' }}>Sign in to ExamIQ</h1>
-            <p style={{ fontSize: '15px', color: '#555555' }}>Welcome back. Enter your details below.</p>
+            <h1 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '8px', color: '#111111' }}>Create an Account</h1>
+            <p style={{ fontSize: '15px', color: '#555555' }}>Join ExamIQ to boost your grades.</p>
           </div>
 
           {error && (
@@ -79,7 +89,15 @@ export const Login: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <Input
+              label="Full Name"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              placeholder="John Doe"
+            />
             <Input
               label="Email Address"
               type="email"
@@ -97,34 +115,15 @@ export const Login: React.FC = () => {
               placeholder="••••••••"
             />
             <Button type="submit" style={{ width: '100%', marginTop: '8px' }} isLoading={loading}>
-              Sign In
+              Sign Up
             </Button>
           </form>
 
           <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '14px', color: '#555555' }}>
-            Don't have an account?{' '}
-            <Link to="/register" style={{ color: '#111111', fontWeight: 500, textDecoration: 'none' }}>
-              Sign Up
+            Already have an account?{' '}
+            <Link to="/login" style={{ color: '#111111', fontWeight: 500, textDecoration: 'none' }}>
+              Sign In
             </Link>
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--border-color)', fontSize: '14px', color: '#6B6B6B' }}>
-            <p style={{ marginBottom: '12px' }}>Need quick access?</p>
-            <button
-              type="button"
-              onClick={() => { setEmail('student@examiq.com'); setPassword('student123'); }}
-              style={{
-                background: '#FAFAFB', border: '1px solid var(--border-color)',
-                color: '#111111', cursor: 'pointer',
-                padding: '8px 16px', borderRadius: '8px',
-                fontSize: '14px', fontWeight: 500, fontFamily: 'var(--font-sans)',
-                transition: 'background var(--transition-fast)',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = '#F2F2F4'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = '#FAFAFB'; }}
-            >
-              Use Demo Account
-            </button>
           </div>
         </Card>
       </div>

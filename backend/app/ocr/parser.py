@@ -1,10 +1,11 @@
 import io
-import fitz # PyMuPDF
+import pymupdf as fitz # PyMuPDF
 import cv2
 import numpy as np
 from PIL import Image
 import pytesseract
 
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 def parse_pdf(file_path: str) -> str:
     """Extract text from a PDF. Fallback to OCR if page has no text."""
     doc = fitz.open(file_path)

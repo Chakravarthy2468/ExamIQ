@@ -17,68 +17,29 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const sizes: Record<string, React.CSSProperties> = {
-    sm: { padding: '0.375rem 0.75rem', fontSize: '0.8125rem' },
-    md: { padding: '0.625rem 1.25rem', fontSize: '0.875rem' },
-    lg: { padding: '0.75rem 1.5rem', fontSize: '0.9375rem' },
-  };
-
-  const variants: Record<string, React.CSSProperties> = {
-    primary: {
-      background: 'var(--primary-color)',
-      color: '#fff',
-      border: 'none',
-    },
-    secondary: {
-      background: 'var(--surface-hover)',
-      color: 'var(--text-primary)',
-      border: '1px solid var(--border-color)',
-    },
-    danger: {
-      background: 'var(--danger-subtle)',
-      color: 'var(--danger-color)',
-      border: '1px solid rgba(248, 113, 113, 0.2)',
-    },
-    ghost: {
-      background: 'transparent',
-      color: 'var(--text-secondary)',
-      border: '1px solid var(--border-color)',
-    },
-  };
-
+  const baseClass = `btn btn-${variant}`;
+  
   const style: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-    fontFamily: 'var(--font-sans)',
-    fontWeight: 600,
-    borderRadius: 'var(--radius)',
-    cursor: (isLoading || disabled) ? 'not-allowed' : 'pointer',
-    opacity: (isLoading || disabled) ? 0.55 : 1,
-    transition: 'all var(--transition-fast)',
-    whiteSpace: 'nowrap',
-    letterSpacing: '0.01em',
-    ...sizes[size],
-    ...variants[variant],
+    padding: size === 'sm' ? '8px 14px' : size === 'lg' ? '14px 24px' : '10px 18px',
+    fontSize: size === 'sm' ? '14px' : size === 'lg' ? '16px' : '15px',
     ...props.style,
   };
 
   return (
     <button
+      className={`${baseClass} ${className}`}
       style={style}
       disabled={isLoading || disabled}
-      className={className}
       {...props}
     >
       {isLoading ? (
         <>
-          <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block' }} className="animate-spin" />
-          Processing…
+          <span style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: 'currentColor', borderRadius: '50%', display: 'inline-block' }} className="animate-spin" />
+          Wait...
         </>
       ) : (
         <>
-          {icon}
+          {icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
           {children}
         </>
       )}

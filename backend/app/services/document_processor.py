@@ -25,46 +25,52 @@ class DocumentProcessor:
             shutil.copyfileobj(upload_file.file, buffer)
             
     @staticmethod
-    def process_document(db: Session, doc_id: int):
-        job = db.query(ProcessingJob).filter(ProcessingJob.document_id == doc_id).first()
-        doc = db.query(Document).filter(Document.id == doc_id).first()
-        if not job or not doc:
-            return
-            
-        job.status = JobStatusEnum.PROCESSING
-        db.commit()
-        
+    def process_document(doc_id: int):
+        from app.db.database import SessionLocal
+        db = SessionLocal()
         try:
-            if doc.file_path.endswith(".pdf"):
-                extracted_text = parse_pdf(doc.file_path)
-            else:
-                # Handle image directly
-                import cv2, pytesseract, numpy as np
-                from PIL import Image
-                img_cv = cv2.imread(doc.file_path)
-                gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-                _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
-                pil_img = Image.fromarray(thresh)
-                extracted_text = pytesseract.image_to_string(pil_img)
-            
-            # Step 2: Extract questions if it's a question paper
-            if doc.type == DocumentTypeEnum.QUESTION_PAPER:
-                extract_questions_from_text(db, doc, extracted_text)
-            elif doc.type == DocumentTypeEnum.SYLLABUS:
-                from app.services.syllabus_extractor import extract_syllabus_from_text
-                extract_syllabus_from_text(db, doc, extracted_text)
+            job = db.query(ProcessingJob).filter(ProcessingJob.document_id == doc_id).first()
+            doc = db.query(Document).filter(Document.id == doc_id).first()
+            if not job or not doc:
+                return
                 
-            job.status = JobStatusEnum.COMPLETED
-            job.progress_percent = 100.0
-            doc.status = "COMPLETED"
+            job.status = JobStatusEnum.PROCESSING
             db.commit()
             
-            # Post-processing: recalculate topic mappings and analytics
-            from app.services.analytics_builder import map_and_calculate_analytics
-            map_and_calculate_analytics(db, doc.course_id)
-            
-        except Exception as e:
-            job.status = JobStatusEnum.FAILED
-            job.error_message = str(e)
-            doc.status = "FAILED"
-            db.commit()
+            try:
+                if doc.file_path.endswith(".pdf"):
+                    extracted_text = parse_pdf(doc.file_path)
+                else:
+                    # Handle image directly
+                    import cv2, pytesseract, numpy as np
+                    from PIL import Image
+                    pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+                    img_cv = cv2.imread(doc.file_path)
+                    gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+                    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY)
+                    pil_img = Image.fromarray(thresh)
+                    extracted_text = pytesseract.image_to_string(pil_img)
+                
+                # Step 2: Extract questions if it's a question paper
+                if doc.type == DocumentTypeEnum.QUESTION_PAPER:
+                    extract_questions_from_text(db, doc, extracted_text)
+                elif doc.type == DocumentTypeEnum.SYLLABUS:
+                    from app.services.syllabus_extractor import extract_syllabus_from_text
+                    extract_syllabus_from_text(db, doc, extracted_text)
+                    
+                job.status = JobStatusEnum.COMPLETED
+                job.progress_percent = 100.0
+                doc.status = "COMPLETED"
+                db.commit()
+                
+                # Post-processing: recalculate topic mappings and analytics
+                from app.services.analytics_builder import map_and_calculate_analytics
+                map_and_calculate_analytics(db, doc.course_id)
+                
+            except Exception as e:
+                job.status = JobStatusEnum.FAILED
+                job.error_message = str(e)
+                doc.status = "FAILED"
+                db.commit()
+        finally:
+            db.close()

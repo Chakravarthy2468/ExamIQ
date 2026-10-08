@@ -23,7 +23,7 @@ async def upload_document(
     from app.db.models import Course, University
     
     # Resolve or create course
-    course = db.query(Course).filter(Course.name.ilike(course_name)).first()
+    course = db.query(Course).filter(Course.name.ilike(course_name), Course.user_id == current_user.id).first()
     if not course:
         # Default university for newly created free-text courses
         uni = db.query(University).first()
@@ -36,7 +36,8 @@ async def upload_document(
         course = Course(
             name=course_name,
             code=course_name[:4].upper(), # Dummy code
-            university_id=uni.id
+            university_id=uni.id,
+            user_id=current_user.id
         )
         db.add(course)
         db.commit()
@@ -70,7 +71,7 @@ async def upload_document(
     db.commit()
     
     # Send processing to background
-    background_tasks.add_task(DocumentProcessor.process_document, db, document.id)
+    background_tasks.add_task(DocumentProcessor.process_document, document.id)
     
     return {"message": "File uploaded successfully, processing started.", "document_id": document.id}
 

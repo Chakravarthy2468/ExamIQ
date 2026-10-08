@@ -33,7 +33,7 @@ def submit_and_evaluate_answer(req: SubmissionRequest, db: Session = Depends(get
     db.refresh(submission)
     
     # Evaluate
-    evaluation = evaluate_answer(db, submission.id)
+    evaluation = evaluate_answer(db, submission.id, student_text=req.text_content)
     
     return {
         "submission_id": submission.id,

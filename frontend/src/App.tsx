@@ -6,11 +6,11 @@ import { Layout } from './components/ui/Layout';
 
 // Pages
 import { Login } from './pages/Auth/Login';
+import { Register } from './pages/Auth/Register';
 import { StudentDashboard } from './pages/Student/StudentDashboard';
 import { StudentDocuments } from './pages/Student/StudentDocuments';
 import { MockExams } from './pages/Student/MockExams';
 import { StudentPlans } from './pages/Student/StudentPlans';
-import { StudentReports } from './pages/Student/StudentReports';
 
 
 
@@ -20,6 +20,7 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           
           <Route element={<Layout><ProtectedRoute /></Layout>}>
             {/* Redirect root to appropriate dashboard based on role */}
@@ -31,7 +32,6 @@ const App: React.FC = () => {
               <Route path="/student/documents" element={<StudentDocuments />} />
               <Route path="/student/plans" element={<StudentPlans />} />
               <Route path="/student/exams" element={<MockExams />} />
-              <Route path="/student/reports" element={<StudentReports />} />
             </Route>
           </Route>
           

@@ -47,11 +47,13 @@ class Course(Base):
     __tablename__ = "courses"
     id = Column(Integer, primary_key=True, index=True)
     university_id = Column(Integer, ForeignKey("universities.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True) # Making it true for backward compatibility
     name = Column(String, nullable=False)
     code = Column(String, index=True, nullable=False)
     semester = Column(Integer)
     
     university = relationship("University")
+    user = relationship("User")
     units = relationship("Unit", back_populates="course")
 
 class Unit(Base):

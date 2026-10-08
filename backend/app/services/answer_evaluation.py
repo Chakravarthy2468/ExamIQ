@@ -6,7 +6,7 @@ from app.nlp.ai_provider import get_ai_provider
 
 logger = logging.getLogger(__name__)
 
-def evaluate_answer(db: Session, submission_id: int) -> AnswerEvaluation:
+def evaluate_answer(db: Session, submission_id: int, student_text: str = None) -> AnswerEvaluation:
     submission = db.query(AnswerSubmission).filter(AnswerSubmission.id == submission_id).first()
     if not submission:
         raise ValueError("Submission not found")
@@ -44,10 +44,9 @@ def evaluate_answer(db: Session, submission_id: int) -> AnswerEvaluation:
     else:
         raise ValueError("Submission must link to either a historical question or mock question")
         
-    # TODO: Fetch student's actual text from file_path via OCR if it's an image.
-    # For now, we assume the student's text is provided or mock a submission text.
-    # We will simulate the student text based on the file_path for now.
-    student_text = "This is the student's submitted answer text."
+    # Use provided text or fallback
+    if not student_text:
+        student_text = "This is the student's submitted answer text."
     
     prompt = f"""
     You are an expert university professor evaluating a student's answer.

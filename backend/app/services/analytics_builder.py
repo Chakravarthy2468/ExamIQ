@@ -54,18 +54,32 @@ def map_and_calculate_analytics(db: Session, course_id: int):
     db.query(TopicAnalytics).filter(TopicAnalytics.topic.has(Topic.unit.has(course_id=course_id))).delete(synchronize_session=False)
     db.commit()
     
-    # Count mappings
-    counts = db.query(QuestionTopicMap.topic_id, func.count(QuestionTopicMap.id)).join(Topic).filter(Topic.unit.has(course_id=course_id)).group_by(QuestionTopicMap.topic_id).all()
+    # Count mappings and sum marks
+    results = db.query(
+        QuestionTopicMap.topic_id,
+        func.count(QuestionTopicMap.id).label('frequency'),
+        func.sum(Question.marks).label('total_marks')
+    ).join(Question, QuestionTopicMap.question_id == Question.id)\
+     .join(Topic, QuestionTopicMap.topic_id == Topic.id)\
+     .filter(Topic.unit.has(course_id=course_id))\
+     .group_by(QuestionTopicMap.topic_id).all()
     
-    if not counts:
+    if not results:
         return
         
-    max_count = max(c[1] for c in counts) if counts else 1
+    max_marks = max((r.total_marks or 0) for r in results) if results else 1
+    if max_marks == 0: max_marks = 1
     
-    for topic_id, count in counts:
-        importance = count / max_count # normalized 0-1
+    for r in results:
+        t_marks = r.total_marks or 0
+        importance = t_marks / max_marks # normalized 0-1 based on marks
+        if importance == 0 and r.frequency > 0:
+            importance = 0.1 # Minimum importance if it appeared but had no marks extracted
+            
         analytics = TopicAnalytics(
-            topic_id=topic_id,
+            topic_id=r.topic_id,
+            frequency=r.frequency,
+            total_marks=t_marks,
             importance_score=importance,
             trend="Stable",
             confidence_score=0.8

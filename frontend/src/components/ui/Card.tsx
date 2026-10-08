@@ -12,13 +12,13 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ children, title, subtitle, className = '', style = {}, hover = false }) => {
   return (
     <div
-      className={`glass ${hover ? 'hover-lift' : ''} ${className}`}
-      style={{ padding: '1.25rem', ...style }}
+      className={`surface ${hover ? 'hover-lift' : ''} ${className}`}
+      style={{ padding: '32px', ...style }}
     >
       {title && (
-        <div style={{ marginBottom: subtitle ? '0.25rem' : '1rem' }}>
-          <h3 style={{ fontSize: '0.9375rem', fontWeight: 600 }}>{title}</h3>
-          {subtitle && <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', margin: '0.25rem 0 0.75rem' }}>{subtitle}</p>}
+        <div style={{ marginBottom: subtitle ? '8px' : '20px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: '#111111' }}>{title}</h3>
+          {subtitle && <p style={{ fontSize: '14px', color: '#6B6B6B', margin: '6px 0 16px' }}>{subtitle}</p>}
         </div>
       )}
       {children}

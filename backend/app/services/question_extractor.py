@@ -57,8 +57,9 @@ def extract_questions_from_text(db: Session, doc: Document, text: str):
     
     try:
         response_str = ai.generate_response(prompt, system_prompt=system_prompt, json_format=True)
-        if response_str.startswith("```json"):
-            response_str = response_str.strip("```json").strip("```").strip()
+        match = re.search(r'\[.*\]|\{.*\}', response_str, re.DOTALL)
+        if match:
+            response_str = match.group(0)
             
         questions_data = json.loads(response_str)
         
