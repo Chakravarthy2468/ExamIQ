@@ -103,7 +103,7 @@ def generate_study_plan(db: Session, user_id: int, course_id: int, days_availabl
         if current_day == days_available:
             task_name = "Full Course Revision & Final Mock Exam"
         else:
-            task_name = "Targeted Practice on High-Weightage Topics"
+            task_name = "Take Mock Exams"
             
         schedule_data_dict["days"].append({
             "day": current_day, 
