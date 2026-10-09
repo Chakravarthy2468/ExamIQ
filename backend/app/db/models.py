@@ -245,15 +245,7 @@ class AnswerEvaluation(Base):
 
 
 
-class Report(Base):
-    __tablename__ = "reports"
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    report_type = Column(String) # PDF, EXCEL
-    file_path = Column(String, nullable=False)
-    generated_at = Column(DateTime, default=datetime.utcnow)
-    
-    user = relationship("User")
+
 
 class AuditLog(Base):
     __tablename__ = "audit_logs"
