@@ -243,17 +243,7 @@ class AnswerEvaluation(Base):
     
     submission = relationship("AnswerSubmission", back_populates="evaluation")
 
-class AISession(Base):
-    __tablename__ = "ai_sessions"
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    topic_id = Column(Integer, ForeignKey("topics.id"), nullable=True)
-    prompt = Column(Text, nullable=False)
-    response = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    
-    user = relationship("User")
-    topic = relationship("Topic")
+
 
 class Report(Base):
     __tablename__ = "reports"
